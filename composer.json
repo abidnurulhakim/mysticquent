@@ -36,8 +36,5 @@
     "psr-4": {
       "Bidzm\\Mysticquent\\Tests\\": "tests/"
     }
-  },
-  "config": {
-    "preferred-install": "dist"
   }
 }
