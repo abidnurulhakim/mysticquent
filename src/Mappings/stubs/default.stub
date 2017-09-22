@@ -1,0 +1,26 @@
+<?php
+
+use Bidzm\Elostic\Map\Blueprint;
+use Bidzm\Elostic\Mappings\Mapping;
+
+class DummyClass extends Mapping
+{
+    /**
+     * Full name of the model that should be mapped
+     *
+     * @var string
+     */
+    protected $model = DummyModel::class;
+
+    /**
+     * Run the mapping.
+     *
+     * @return void
+     */
+    public function map()
+    {
+        Map::create($this->getModelType(),function(Blueprint $map){
+            //
+        },$this->getModelIndex());
+    }
+}
