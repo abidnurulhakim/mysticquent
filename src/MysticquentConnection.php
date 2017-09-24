@@ -4,12 +4,9 @@ namespace Bidzm\Mysticquent;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
-use ONGR\ElasticsearchDSL\Search as DSLQuery;
+use Bidzm\Mysticquent\Builders\MapBuilder;
 use Bidzm\Mysticquent\Builders\SearchBuilder;
 use Bidzm\Mysticquent\Builders\SuggestionBuilder;
-use Bidzm\Mysticquent\Map\Builder as MapBuilder;
-use Bidzm\Mysticquent\Map\Grammar as MapGrammar;
-use Bidzm\Mysticquent\Persistence\EloquentPersistence;
 
 class MysticquentConnection
 {
@@ -25,13 +22,6 @@ class MysticquentConnection
      *
      * @var Client
      */
-    protected $elastic;
-
-    /**
-     * Elasticsearch client instance.
-     *
-     * @var Client
-     */
     protected $client;
 
     /**
@@ -41,7 +31,7 @@ class MysticquentConnection
      */
     public function __construct(array $config = [])
     {
-        $this->elastic = $this->client();
+        $this->client = $this->client();
 
         $this->setDefaultIndex($config['index']);
     }
@@ -57,56 +47,6 @@ class MysticquentConnection
     }
 
     /**
-     * Get map builder instance for this connection.
-     *
-     * @return MapBuilder
-     */
-    public function getMapBuilder()
-    {
-        return new MapBuilder($this);
-    }
-
-    /**
-     * Get map grammar instance for this connection.
-     *
-     * @return MapBuilder
-     */
-    public function getMapGrammar()
-    {
-        return new MapGrammar();
-    }
-
-    /**
-     * Get DSL grammar instance for this connection.
-     *
-     * @return DSLGrammar
-     */
-    public function getDSLQuery()
-    {
-        return new DSLQuery();
-    }
-
-    /**
-     * Get the elastic search client instance.
-     *
-     * @return Client
-     */
-    public function getClient()
-    {
-        return $this->elastic;
-    }
-
-    /**
-     * Set a custom elastic client.
-     *
-     * @param Client $client
-     */
-    public function setClient(Client $client)
-    {
-        $this->elastic = $client;
-    }
-
-    /**
      * Set the default index.
      *
      * @param $index
@@ -119,27 +59,23 @@ class MysticquentConnection
     }
 
     /**
-     * Execute a map statement on index;.
+     * Get the elastic search client instance.
      *
-     * @param array $mappings
-     *
-     * @return array
+     * @return Client
      */
-    public function mapStatement(array $mappings)
+    public function getClient()
     {
-        return $this->elastic->indices()->putMapping($this->setStatementIndex($mappings));
+        return $this->client;
     }
 
     /**
-     * Execute a map statement on index;.
+     * Set a custom elastic client.
      *
-     * @param array $suggestions
-     *
-     * @return array
+     * @param Client $client
      */
-    public function suggestStatement(array $suggestions)
+    public function setClient(Client $client)
     {
-        return $this->elastic->suggest($this->setStatementIndex($suggestions));
+        $this->client = $client;
     }
 
     /**
@@ -159,7 +95,17 @@ class MysticquentConnection
      */
     public function suggest()
     {
-        return new SuggestionBuilder($this, $this->getDSLQuery());
+        return new SuggestionBuilder();
+    }
+
+    /**
+     * Begin a fluent map query builder.
+     *
+     * @return MapBuilder
+     */
+    public function map()
+    {
+        return new MapBuilder();
     }
 
     /**

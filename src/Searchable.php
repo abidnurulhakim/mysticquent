@@ -4,6 +4,7 @@ namespace Bidzm\Mysticquent;
 
 use Bidzm\Mysticquent\Document;
 use Bidzm\Mysticquent\Facades\Mysticquent;
+use Bidzm\Mysticquent\Map\Blueprint;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -121,14 +122,30 @@ trait Searchable
                 $input[] = $value;
             }
         }
-        $document['_suggest']['input'] = $input;
+        $document['_suggest'] = $input;
 
         return $document;
     }
 
+    /**
+     * Get attributes for suggester.
+     *
+     * @return array
+     */
     public function getSuggesterAttributes() : array
     {
         return $this->suggester ?? array_keys($this->buildDocument());
+    }
+
+    /**
+     * Mapping.
+     *
+     */
+    protected function mapping()
+    {
+        return function(Blueprint $map) {
+            $map->completion('_suggest', ['analyzer' => 'simple', 'search_analyzer' => 'simple']);
+        };
     }
 
     /**
@@ -164,14 +181,32 @@ trait Searchable
     public static function resetIndex(bool $reindex = true)
     {
         $model = new static;
-        try {
-            Mysticquent::client()->indices()->delete([
-                'index' => $model->getDocumentIndex()
-            ]);
-        } catch (Exception $e) {}
+        $indexParams = [
+            'index' => $model->getDocumentIndex()
+        ];
+        $exists = Mysticquent::client()->indices()->exists($indexParams);
+        if ($exists) {
+            Mysticquent::client()->indices()->delete($indexParams);
+        }
+        $response = Mysticquent::client()->indices()
+            ->create($model->defaultMapping());
+
+        self::runMapping();
+
         if ($reindex) {
             self::reindexAll();
         }
+
+    }
+
+    /**
+     * Run Mapping.
+     *
+     */
+    public static function runMapping()
+    {
+        $model = new static;
+        Mysticquent::map()->create($model->getDocumentType(), $model->mapping(), $model->getDocumentIndex());
     }
 
     /**
@@ -194,5 +229,41 @@ trait Searchable
     {
         $model = new static;
         return Mysticquent::suggest()->setModel($model);
+    }
+
+    private function defaultMapping()
+    {
+        return [
+                'index' => $this->getDocumentIndex(),
+                'body' => [
+                    'mappings' => [
+                        '_default_' => [
+                             'dynamic_templates' => [
+                                 [
+                                     'strings' => [
+                                         'match_mapping_type' => 'string',
+                                         'mapping' => [
+                                             'type' => 'text',
+                                             'fields' => [
+                                                 '{name}' => [
+                                                     'include_in_all' => true,
+                                                     'index' => 'not_analyzed',
+                                                     'type' => 'string'
+                                                 ],
+                                                 'analyzed' => [
+                                                     'index' => 'analyzed',
+                                                     'type' => 'string'
+                                                 ]
+                                             ]
+                                         ],
+                                         'match' => '*',
+                                         'match_mapping_type' => 'string'
+                                     ]
+                                 ]
+                             ]
+                        ]
+                    ]
+                ]
+            ];
     }
 }

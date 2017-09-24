@@ -1,6 +1,6 @@
 <?php
 
-namespace Bidzm\Elostic\Map;
+namespace Bidzm\Mysticquent\Map;
 
 use Illuminate\Support\Fluent;
 

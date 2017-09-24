@@ -1,10 +1,9 @@
 <?php
 
-namespace Bidzm\Elostic\Map;
+namespace Bidzm\Mysticquent\Map;
 
 use Closure;
 use Illuminate\Support\Fluent;
-use Bidzm\Elostic\Connection;
 
 class Blueprint
 {
@@ -54,12 +53,11 @@ class Blueprint
     /**
      * Execute the blueprint against the database.
      *
-     * @param Connection $connection
      * @param Grammar    $grammar
      *
      * @return array
      */
-    public function build(Connection $connection, Grammar $grammar)
+    public function build(Grammar $grammar)
     {
         $statement = [
             'index' => $this->index,
@@ -73,8 +71,7 @@ class Blueprint
                 ],
             ],
         ];
-
-        return $connection->mapStatement($statement);
+        return \Mysticquent::client()->indices()->putMapping($statement);
     }
 
     /**

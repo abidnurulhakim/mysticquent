@@ -1,20 +1,14 @@
 <?php
 
-namespace Bidzm\Elostic\Map;
+namespace Bidzm\Mysticquent\Builders;
 
+use Bidzm\Mysticquent\Builders\BaseBuilder;
+use Bidzm\Mysticquent\Map\Blueprint;
+use Bidzm\Mysticquent\Map\Grammar;
 use Closure;
-use Bidzm\Elostic\Connection;
-use Bidzm\Elostic\Exception\InvalidArgumentException;
 
-class Builder
+class MapBuilder extends BaseBuilder
 {
-    /**
-     * Plastic connection instance.
-     *
-     * @var Connection
-     */
-    protected $connection;
-
     /**
      * Map grammar instance.
      *
@@ -29,15 +23,10 @@ class Builder
      */
     protected $resolver;
 
-    /**
-     * Schema constructor.
-     *
-     * @param Connection $connection
-     */
-    public function __construct(Connection $connection)
+    public function __construct()
     {
-        $this->connection = $connection;
-        $this->grammar = $connection->getMapGrammar();
+        parent::__construct();
+        $this->grammar = new Grammar;
     }
 
     /**
@@ -73,7 +62,7 @@ class Builder
      */
     protected function build(Blueprint $blueprint)
     {
-        $blueprint->build($this->connection, $this->grammar);
+        $blueprint->build($this->grammar);
     }
 
     /**

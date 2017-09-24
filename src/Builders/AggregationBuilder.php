@@ -1,7 +1,8 @@
 <?php
 
-namespace Bidzm\Elostic\Builders;
+namespace Bidzm\Mysticquent\Builders;
 
+use Bidzm\Mysticquent\Builders\BaseBuilder;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\DateRangeAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\GeoDistanceAggregation;
@@ -23,23 +24,11 @@ use ONGR\ElasticsearchDSL\Aggregation\Metric\SumAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\ValueCountAggregation;
 use ONGR\ElasticsearchDSL\Search as Query;
 
-class AggregationBuilder
+class AggregationBuilder extends BaseBuilder
 {
-    /**
-     * An instance of DSL query.
-     *
-     * @var Query
-     */
-    public $query;
-
-    /**
-     * Builder constructor.
-     *
-     * @param Query $query
-     */
-    public function __construct(Query $query = null)
+    public function __construct()
     {
-        $this->query = $query;
+        parent::__construct();
     }
 
     /**
