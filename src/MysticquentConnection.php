@@ -83,9 +83,9 @@ class MysticquentConnection
      *
      * @return SearchBuilder
      */
-    public function search()
+    public function search($keyword = '*', array $attributes = [])
     {
-        return new SearchBuilder();
+        return new SearchBuilder($keyword, $attributes);
     }
 
     /**

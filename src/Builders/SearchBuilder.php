@@ -75,7 +75,7 @@ class SearchBuilder extends BaseBuilder
         $this->addFilters($filters);
         $queries = Arr::get($attributes, 'query', []);
         $this->addQueries($queries);
-        $sortBy = Arr::flatten([Arr::get($attributes, 'sort_by', [])]);
+        $sortBy = Arr::get($attributes, 'sort_by', []);
         $this->addSortBy($sortBy);
         $this->setSearchFields($attributes);
         $this->setWith(Arr::flatten([Arr::get($attributes, 'with', [])]));
@@ -1093,19 +1093,24 @@ class SearchBuilder extends BaseBuilder
     /**
      * Add fields for sorting.
      *
-     * @param array $attributes
+     * @param mixed $attributes
      *
      */
-    private function addSortBy(array $fields) : void
+    private function addSortBy($fields) : void
     {
-        foreach ($fields as $key => $order) {
-            if ($key == 'id' || $order == 'id') {
-                continue;
-            }
-            if (is_numeric($key)) {
-                $this->sortBy($order, 'asc');
-            } else {
-                $this->sortBy($key, $order);
+        if (is_string($fields)) {
+            $fields = [$fields];
+        }
+        if (is_array($fields)) {
+            foreach ($fields as $key => $order) {
+                if ($key == 'id' || $order == 'id') {
+                    continue;
+                }
+                if (is_numeric($key)) {
+                    $this->sortBy($order, 'asc');
+                } else {
+                    $this->sortBy($key, $order);
+                }
             }
         }
     }

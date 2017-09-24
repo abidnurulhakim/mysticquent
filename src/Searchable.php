@@ -188,7 +188,7 @@ trait Searchable
         if ($exists) {
             Mysticquent::client()->indices()->delete($indexParams);
         }
-        $response = Mysticquent::client()->indices()
+        Mysticquent::client()->indices()
             ->create($model->defaultMapping());
 
         self::runMapping();
@@ -231,6 +231,11 @@ trait Searchable
         return Mysticquent::suggest()->setModel($model);
     }
 
+    /**
+     * Get default mapping
+     *
+     * @return array
+     */
     private function defaultMapping()
     {
         return [
@@ -241,9 +246,10 @@ trait Searchable
                              'dynamic_templates' => [
                                  [
                                      'strings' => [
+                                         'match' => '*',
                                          'match_mapping_type' => 'string',
                                          'mapping' => [
-                                             'type' => 'text',
+                                             'type' => 'keyword',
                                              'fields' => [
                                                  '{name}' => [
                                                      'include_in_all' => true,
@@ -256,8 +262,6 @@ trait Searchable
                                                  ]
                                              ]
                                          ],
-                                         'match' => '*',
-                                         'match_mapping_type' => 'string'
                                      ]
                                  ]
                              ]
