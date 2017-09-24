@@ -1,69 +1,16 @@
 <?php
 
-namespace Bidzm\Elostic\Builders;
+namespace Bidzm\Mysticquent\Builders;
 
+use Bidzm\Mysticquent\Builders\BaseBuilder;
 use ONGR\ElasticsearchDSL\Search as Query;
 use ONGR\ElasticsearchDSL\Suggest\Suggest;
-use Bidzm\Elostic\Connection;
 
-class SuggestionBuilder
+class SuggestionBuilder extends BaseBuilder
 {
-    /**
-     * The elastic index to query against.
-     *
-     * @var string
-     */
-    public $index;
-
-    /**
-     * An instance of DSL query.
-     *
-     * @var Query
-     */
-    public $query;
-
-    /**
-     * An instance of plastic Connection.
-     *
-     * @var Connection
-     */
-    private $connection;
-
-    /**
-     * Builder constructor.
-     *
-     * @param Connection $connection
-     * @param Query      $query
-     */
-    public function __construct(Connection $connection, Query $query = null)
+    public function __construct()
     {
-        $this->query = $query;
-
-        $this->connection = $connection;
-    }
-
-    /**
-     * Set the elastic index to query against.
-     *
-     * @param string $index
-     *
-     * @return $this
-     */
-    public function index($index)
-    {
-        $this->index = $index;
-
-        return $this;
-    }
-
-    /**
-     * Return the current elastic index.
-     *
-     * @return string
-     */
-    public function getIndex()
-    {
-        return $this->index;
+        parent::__construct();
     }
 
     /**
@@ -78,7 +25,7 @@ class SuggestionBuilder
      *
      * @internal param $fields
      */
-    public function completion($name, $text, $field = 'suggest', $parameters = [])
+    public function completion($name, $text, $field = '_suggest', $parameters = [])
     {
         $suggestion = new Suggest($name, 'completion', $text, $field, $parameters);
 
@@ -123,22 +70,10 @@ class SuggestionBuilder
      */
     public function get()
     {
-        return $this->connection->suggestStatement(
-            [
-                'index' => $this->getIndex(),
-                'body'  => $this->toDSL(),
-            ]
-        );
-    }
-
-    /**
-     * Returns the connection instance.
-     *
-     * @return Connection
-     */
-    public function getConnection()
-    {
-        return $this->connection;
+        return $this->client->suggest([
+            'index' => $this->getIndex(),
+            'body'  => $this->toDSL(),
+        ]);
     }
 
     /**

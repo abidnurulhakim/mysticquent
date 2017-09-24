@@ -1,6 +1,6 @@
 <?php
 
-namespace Bidzm\Elostic\Exceptions;
+namespace Bidzm\Mysticquent\Exceptions;
 
 class InvalidArgumentException extends \InvalidArgumentException
 {

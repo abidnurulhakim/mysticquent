@@ -10,7 +10,7 @@ return [
     | The default elastic index used with all eloquent model
     |
     */
-    'index' => env('ELASTIC_INDEX', 'elostic'),
+    'index' => env('MYSTICQUENT_INDEX', '_all'),
 
     /*
      * Connection settings
@@ -27,7 +27,7 @@ return [
         |
         */
         'hosts'   => [
-            env('ELASTIC_HOST', '127.0.0.1:9200'),
+            env('MYSTICQUENT_HOST', '127.0.0.1:9200'),
         ],
 
         /*
@@ -39,7 +39,7 @@ return [
         | A retry is only performed if the operation results in a "hard" exception.
         |
         */
-        'retries' => env('ELASTIC_RETRIES', 3),
+        'retries' => env('MYSTICQUENT_RETRIES', 3),
 
         /*
         |------------------------------------------------------------------
@@ -53,9 +53,9 @@ return [
         |
         */
         'logging' => [
-            'enabled' => env('ELASTIC_LOG', false),
-            'path'    => storage_path(env('ELASTIC_LOG_PATH', 'logs/elostic.log')),
-            'level'   => env('ELASTIC_LOG_LEVEL', 200),
+            'enabled' => env('MYSTICQUENT_LOG', false),
+            'path'    => storage_path(env('MYSTICQUENT_LOG_PATH', 'logs/elostic.log')),
+            'level'   => env('MYSTICQUENT_LOG_LEVEL', 200),
         ],
     ],
 
@@ -67,6 +67,8 @@ return [
     | The sql table to store the mappings logs
     |
     */
-    'mappings'       => env('ELASTIC_MAPPINGS', 'mappings'),
+    'mappings'   => env('MYSTICQUENT_MAPPINGS', 'mappings'),
+
+    'morph_map'  => [],
 
 ];

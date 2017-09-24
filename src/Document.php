@@ -1,33 +1,57 @@
 <?php
 
-namespace Bidzm\Elostic\Persistences;
+namespace Bidzm\Mysticquent;
 
-use Bidzm\Elostic\Connection;
-use Bidzm\Elostic\Exception\InvalidArgumentException;
-use Bidzm\Elostic\Exception\MissingArgumentException;
-use Bidzm\Elostic\Searchable;
+use Bidzm\Mysticquent\Exceptions\InvalidArgumentException;
+use Bidzm\Mysticquent\Exceptions\MissingArgumentException;
+use Bidzm\Mysticquent\Searchable;
+use Bidzm\Mysticquent\Facades\Mysticquent;
+use Elasticsearch\Client;
 use Illuminate\Support\Collection;
 
-class ModelPersistence
+class Document
 {
     /**
-     * @var Connection
+     * @var Client
      */
-    protected $connection;
+    protected $client;
 
     /**
-     * @var Model
+     * @var mixed
      */
     protected $model;
 
     /**
      * PersistenceAbstract constructor.
      *
-     * @param Connection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct()
     {
-        $this->connection = $connection;
+        $this->setClient(\Mysticquent::client());
+    }
+
+    /**
+     * Get the elastic search client instance.
+     *
+     * @return Client
+     */
+    public function getClient() : Client
+    {
+        return $this->client;
+    }
+
+    /**
+     * Set a custom elastic client.
+     *
+     * @param Client $client
+     *
+     * @return $this
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+
+        return $this;
     }
 
     /**
@@ -51,12 +75,7 @@ class ModelPersistence
      */
     public function model($model)
     {
-        // Check if the model is searchable before setting the query builder model
-        $traits = class_uses_recursive(get_class($model));
-
-        if (!isset($traits[Searchable::class])) {
-            throw new InvalidArgumentException(get_class($model).' does not use the searchable trait');
-        }
+        $this->exitIfItemNotUseSearchable($model);
 
         $this->model = $model;
 
@@ -77,16 +96,15 @@ class ModelPersistence
         if (!$this->model->exists) {
             throw new \Exception('Model not persisted yet');
         }
-        $document = $this->model->getDocumentData();
 
         $params = [
             'id'    => $this->model->getKey(),
             'type'  => $this->model->getDocumentType(),
             'index' => $this->model->getDocumentIndex(),
-            'body'  => $document,
+            'body'  => $this->model->getDocumentData(),
         ];
 
-        return $this->connection->indexStatement($params);
+        return $this->client->index($params);
     }
 
     /**
@@ -104,18 +122,16 @@ class ModelPersistence
             throw new \Exception('Model not persisted yet');
         }
 
-        $document = $this->model->getDocumentData();
-
         $params = [
             'id'    => $this->model->getKey(),
             'type'  => $this->model->getDocumentType(),
             'index' => $this->model->getDocumentIndex(),
             'body'  => [
-                'doc' => $document,
+                'doc' => $this->model->getDocumentData(),
             ],
         ];
 
-        return $this->connection->updateStatement($params);
+        return $this->client->update($params);
     }
 
     /**
@@ -134,8 +150,8 @@ class ModelPersistence
         ];
 
         // check if the document exists before deleting
-        if ($this->connection->existsStatement($params)) {
-            return $this->connection->deleteStatement($params);
+        if ($this->elastic->exists($params)) {
+            return $this->client->delete($params);
         }
 
         return true;
@@ -151,23 +167,18 @@ class ModelPersistence
     public function bulkSave($collection = [])
     {
         $params = [];
-
-        $defaultIndex = $this->connection->getDefaultIndex();
-
         foreach ($collection as $item) {
-            $modelIndex = $item->getDocumentIndex();
-
             $params['body'][] = [
                 'index' => [
                     '_id'    => $item->getKey(),
                     '_type'  => $item->getDocumentType(),
-                    '_index' => $modelIndex ? $modelIndex : $defaultIndex,
+                    '_index' => $item->getDocumentIndex(),
                 ],
             ];
             $params['body'][] = $item->getDocumentData();
         }
 
-        return $this->connection->bulkStatement($params);
+        return $this->client->bulk($params);
     }
 
     /**
@@ -180,36 +191,17 @@ class ModelPersistence
     public function bulkDelete($collection = [])
     {
         $params = [];
-
-        $defaultIndex = $this->connection->getDefaultIndex();
-
         foreach ($collection as $item) {
-            $modelIndex = $item->getDocumentIndex();
-
             $params['body'][] = [
                 'delete' => [
                     '_id'    => $item->getKey(),
                     '_type'  => $item->getDocumentType(),
-                    '_index' => $modelIndex ? $modelIndex : $defaultIndex,
+                    '_index' => $item->getDocumentIndex(),
                 ],
             ];
         }
 
-        return $this->connection->bulkStatement($params);
-    }
-
-    /**
-     * Reindex a collection of Models.
-     *
-     * @param array|Collection $collection
-     *
-     * @return mixed
-     */
-    public function reindex($collection = [])
-    {
-        $this->bulkDelete($collection);
-
-        return $this->bulkSave($collection);
+        return $this->client->bulk($params);
     }
 
     /**
@@ -221,4 +213,27 @@ class ModelPersistence
             throw new MissingArgumentException('you should set the model first');
         }
     }
+
+    /**
+     * Check collection if use searchable.
+     */
+    private function exitIfItemCollectionNotUseSearchable($collection = [])
+    {
+        foreach ($collection as $item) {
+            $this->exitIfItemNotUseSearchable($item);
+        }
+    }
+
+    /**
+     * Check item use searchable.
+     */
+    private function exitIfItemNotUseSearchable($item)
+    {
+        $traits = class_uses_recursive(get_class($item));
+
+        if (!isset($traits[Searchable::class])) {
+            throw new InvalidArgumentException(get_class($item).' does not use the searchable trait');
+        }
+    }
+
 }

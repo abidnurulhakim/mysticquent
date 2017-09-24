@@ -2,37 +2,19 @@
 
 namespace Bidzm\Mysticquent;
 
+use Bidzm\Mysticquent\Document;
+use Bidzm\Mysticquent\Facades\Mysticquent;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Bidzm\Elostic\Facades\Mysticquent;
-use Bidzm\Elostic\Persistence\EloquentPersistence;
 
-/**
- * @method static \Bidzm\Elostic\Builders\SearchBuilder search()
- * @method static \Bidzm\Elostic\Builders\SuggestionBuilder suggest()
- */
 trait Searchable
 {
-    /**
-     * Is indexed in elastic search.
-     *
-     * @var bool
-     */
-    public $isDocument = false;
-
     /**
      * Hit score after querying Elasticsearch.
      *
      * @var null|int
      */
     public $documentScore = null;
-
-    /**
-     * Elasticsearch document version.
-     *
-     * @var null|int
-     */
-    public $documentVersion = null;
 
     /**
      * Searchable boot model.
@@ -55,11 +37,20 @@ trait Searchable
     /**
      * Start an elastic persistence query builder.
      *
-     * @return EloquentPersistence
+     * @return \Bidzm\Mysticquet\Document
      */
-    public function document()
+    private function document()
     {
-        return Plastic::persist()->model($this);
+        return Mysticquent::document()->model($this);
+    }
+
+    /**
+     * Reindex of model.
+     *
+     */
+    public function reindex()
+    {
+        $this->document()->save();
     }
 
     /**
@@ -74,7 +65,7 @@ trait Searchable
             return $this->documentType;
         }
 
-        return $this->getTable();
+        return get_class($this);
     }
 
     /**
@@ -88,61 +79,56 @@ trait Searchable
         if (isset($this->documentIndex) and !empty($this->documentIndex)) {
             return $this->documentIndex;
         }
+        return $this->getTable().'_'.env('APP_ENV');
     }
 
     /**
-     * Build the document data with the appropriate method.
+     * Build the document data.
      *
      * @return array
      */
-    public function getDocumentData()
-    {
-        // If the model contain a buildDocument function
-        // use it to build the document
-        if (method_exists($this, 'buildDocument')) {
-            $document = $this->buildDocument();
-
-            return $document;
-        }
-        // If a searchable array is provided build
-        // the document from the given array
-        elseif (is_array($this->searchable)) {
-            $document = $this->buildDocumentFromArray($this->searchable);
-
-            return $document;
-        } else {
-            $document = $this->toArray();
-
-            return $document;
-        }
-    }
-
-    /**
-     * Build the document from a searchable array.
-     *
-     * @param array $searchable
-     *
-     * @return array
-     */
-    protected function buildDocumentFromArray(array $searchable)
+    public function buildDocument() : array
     {
         $document = [];
-
-        foreach ($searchable as $value) {
-            $result = $this->$value;
-
-            if ($result instanceof Collection) {
-                $result = $result->toArray();
-            } elseif ($result instanceof Carbon) {
-                $result = $result->toDateTimeString();
-            } else {
-                $result = $this->$value;
-            }
-
-            $document[$value] = $result;
+        foreach (array_keys($this->getAttributes()) as $attribute) {
+            $document[$attribute] = $this->$attribute;
         }
+        return $document;
+    }
+
+    /**
+     * Get the document data with the appropriate method.
+     *
+     * @return array
+     */
+    public function getDocumentData() : array
+    {
+        $dataRaw = $this->buildDocument();
+        $document = [];
+        foreach ($dataRaw as $attribute => $value) {
+            if ($value instanceof Collection) {
+                $value = $value->toArray();
+            } elseif ($value instanceof Carbon) {
+                $value = $value->format('Y-m-d\TH:i:s\Z');
+            }
+            $document[$attribute] = $value;
+        }
+        // append suggest
+        $input = [];
+        foreach ($this->getSuggesterAttributes() as $attribute) {
+            $value = $this->$attribute ?? array_get($dataRaw, $attribute);
+            if (is_string($value) && preg_match('/[A-z]+/', $value)) {
+                $input[] = $value;
+            }
+        }
+        $document['_suggest']['input'] = $input;
 
         return $document;
+    }
+
+    public function getSuggesterAttributes() : array
+    {
+        return $this->suggester ?? array_keys($this->buildDocument());
     }
 
     /**
@@ -160,25 +146,53 @@ trait Searchable
     }
 
     /**
-     * Handle dynamic method calls into the model.
+     * Reindex bulk Models.
      *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
      */
-    public function __call($method, $parameters)
+    public static function reindexAll()
     {
-        if ($method == 'search') {
-            //Start an elastic dsl search query builder
-            return Plastic::search()->model($this);
-        }
+        $model = new static;
+        self::chunk(1000, function ($models) use ($model) {
+            $model->document()->bulkSave($models);
+        });
+    }
 
-        if ($method == 'suggest') {
-            //Start an elastic dsl suggest query builder
-            return Plastic::suggest()->index($this->getDocumentIndex());
+    /**
+     * Reset index of Models.
+     *
+     */
+    public static function resetIndex(bool $reindex = true)
+    {
+        $model = new static;
+        try {
+            Mysticquent::client()->indices()->delete([
+                'index' => $model->getDocumentIndex()
+            ]);
+        } catch (Exception $e) {}
+        if ($reindex) {
+            self::reindexAll();
         }
+    }
 
-        return parent::__call($method, $parameters);
+    /**
+     * Start an elastic search query builder.
+     *
+     * @return \Bidzm\Mysticquet\Builder\SearchBuilder
+     */
+    public static function search($keyword = '*', array $attributes = [])
+    {
+        $model = new static;
+        return Mysticquent::search($keyword, $attributes)->setModel($model);
+    }
+
+    /**
+     * Start an elastic suggestion query builder.
+     *
+     * @return \Bidzm\Mysticquet\Builder\SuggestionBuilder
+     */
+    public static function suggest()
+    {
+        $model = new static;
+        return Mysticquent::suggest()->setModel($model);
     }
 }

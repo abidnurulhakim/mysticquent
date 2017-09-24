@@ -5,11 +5,11 @@ namespace Bidzm\Mysticquent;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use ONGR\ElasticsearchDSL\Search as DSLQuery;
-use Bidzm\Elostic\Builders\SearchBuilder;
-use Bidzm\Elostic\Builders\SuggestionBuilder;
-use Bidzm\Elostic\Map\Builder as MapBuilder;
-use Bidzm\Elostic\Map\Grammar as MapGrammar;
-use Bidzm\Elostic\Persistence\EloquentPersistence;
+use Bidzm\Mysticquent\Builders\SearchBuilder;
+use Bidzm\Mysticquent\Builders\SuggestionBuilder;
+use Bidzm\Mysticquent\Map\Builder as MapBuilder;
+use Bidzm\Mysticquent\Map\Grammar as MapGrammar;
+use Bidzm\Mysticquent\Persistence\EloquentPersistence;
 
 class MysticquentConnection
 {
@@ -28,13 +28,20 @@ class MysticquentConnection
     protected $elastic;
 
     /**
+     * Elasticsearch client instance.
+     *
+     * @var Client
+     */
+    protected $client;
+
+    /**
      * Connection constructor.
      *
      * @param array $config
      */
     public function __construct(array $config = [])
     {
-        $this->elastic = $this->buildClient($config['connection']);
+        $this->elastic = $this->client();
 
         $this->setDefaultIndex($config['index']);
     }
@@ -126,18 +133,6 @@ class MysticquentConnection
     /**
      * Execute a map statement on index;.
      *
-     * @param array $search
-     *
-     * @return array
-     */
-    public function searchStatement(array $search)
-    {
-        return $this->elastic->search($this->setStatementIndex($search));
-    }
-
-    /**
-     * Execute a map statement on index;.
-     *
      * @param array $suggestions
      *
      * @return array
@@ -148,73 +143,13 @@ class MysticquentConnection
     }
 
     /**
-     * Execute a insert statement on index;.
-     *
-     * @param $params
-     *
-     * @return array
-     */
-    public function indexStatement(array $params)
-    {
-        return $this->elastic->index($this->setStatementIndex($params));
-    }
-
-    /**
-     * Execute a update statement on index;.
-     *
-     * @param $params
-     *
-     * @return array
-     */
-    public function updateStatement(array $params)
-    {
-        return $this->elastic->update($this->setStatementIndex($params));
-    }
-
-    /**
-     * Execute a update statement on index;.
-     *
-     * @param $params
-     *
-     * @return array
-     */
-    public function deleteStatement(array $params)
-    {
-        return $this->elastic->delete($this->setStatementIndex($params));
-    }
-
-    /**
-     * Execute a exists statement on index.
-     *
-     * @param array $params
-     *
-     * @return array|bool
-     */
-    public function existsStatement(array $params)
-    {
-        return $this->elastic->exists($this->setStatementIndex($params));
-    }
-
-    /**
-     * Execute a bulk statement on index;.
-     *
-     * @param $params
-     *
-     * @return array
-     */
-    public function bulkStatement(array $params)
-    {
-        return $this->elastic->bulk($params);
-    }
-
-    /**
      * Begin a fluent search query builder.
      *
      * @return SearchBuilder
      */
     public function search()
     {
-        return new SearchBuilder($this, $this->getDSLQuery());
+        return new SearchBuilder();
     }
 
     /**
@@ -230,49 +165,35 @@ class MysticquentConnection
     /**
      * Create a new elastic persistence handler.
      *
-     * @return EloquentPersistence
+     * @return Document
      */
-    public function persist()
+    public function document()
     {
-        return new EloquentPersistence($this);
+        return new Document($this);
     }
 
     /**
      * Create an elastic search instance.
      *
-     * @param array $config
-     *
      * @return Client
      */
-    private function buildClient(array $config)
+    public function client()
     {
-        $client = ClientBuilder::create()
-            ->setHosts($config['hosts']);
+        if (!$this->client) {
+            $config = config('mysticquent.connection');
+            $client = ClientBuilder::create()
+                ->setHosts($config['hosts']);
 
-        if (isset($config['retries'])) {
-            $client->setRetries($config['retries']);
+            if (isset($config['retries'])) {
+                $client->setRetries($config['retries']);
+            }
+
+            if (isset($config['logging']) and $config['logging']['enabled'] == true) {
+                $logger = ClientBuilder::defaultLogger($config['logging']['path'], $config['logging']['level']);
+                $client->setLogger($logger);
+            }
+            $this->client = $client->build();
         }
-
-        if (isset($config['logging']) and $config['logging']['enabled'] == true) {
-            $logger = ClientBuilder::defaultLogger($config['logging']['path'], $config['logging']['level']);
-            $client->setLogger($logger);
-        }
-
-        return $client->build();
-    }
-
-    /**
-     * @param array $params
-     *
-     * @return array
-     */
-    private function setStatementIndex(array $params)
-    {
-        if (isset($params['index']) and $params['index']) {
-            return $params;
-        }
-
-        // merge the default index with the given params if the index is not set.
-        return array_merge($params, ['index' => $this->getDefaultIndex()]);
+        return $this->client;
     }
 }
