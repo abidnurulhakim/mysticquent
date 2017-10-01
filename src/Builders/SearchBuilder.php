@@ -35,6 +35,13 @@ use Illuminate\Support\Collection;
 class SearchBuilder extends BaseBuilder
 {
     /**
+    * Keyword for query.
+    *
+    * @var string
+    */
+    protected $keyword = '*';
+
+    /**
     * Offset for query.
     *
     * @var string
@@ -70,6 +77,7 @@ class SearchBuilder extends BaseBuilder
     public function __construct(string $keyword = '*', array $attributes = [])
     {
         parent::__construct();
+        $this->keyword = $keyword;
         $this->setPagination($attributes);
         $filters = Arr::get($attributes, 'where', []);
         $this->addFilters($filters);
@@ -1131,11 +1139,11 @@ class SearchBuilder extends BaseBuilder
             return !preg_match('/(_id)$/', $value);
         });
         $fields = Arr::flatten($fields);
-        if (!empty($keyword) && $keyword != '*') {
+        if (!empty($this->keyword) && $this->keyword != '*') {
             if (empty($fields)) {
-                $this->match('_all', $keyword, ['fuzziness' => 'AUTO']);
+                $this->match('_all', $this->keyword, ['fuzziness' => 'AUTO']);
             } else {
-                $this->multiMatch($fields, $keyword, ['fuzziness' => 'AUTO']);
+                $this->multiMatch($fields, $this->keyword, ['fuzziness' => 'AUTO']);
             }
         }
     }
@@ -1161,7 +1169,6 @@ class SearchBuilder extends BaseBuilder
             $exists = $models->search(function ($model) use ($item, $type) {
                 return $model->getKey() == $item['_id'];
             });
-            $models->get($exists) ?? $this->fillModel($type, $item);
             return $models->get($exists) ?? $this->fillModel($type, $item);
         });
     }
