@@ -1019,9 +1019,9 @@ class SearchBuilder extends BaseBuilder
                 $this->mustNot();
             }
             $this->exists($field);
-        } elseif (array() == $value) {
+        } elseif (is_array($value) && !is_associative_array($value)) {
             $query = new TermsQuery($field, $value, $attributes);
-        } elseif (is_array($value)) {
+        } elseif (is_associative_array($value)) {
             if (Arr::has($value, 'gt') || Arr::has($value, 'gte') ||
                 Arr::has($value, 'lt') || Arr::has($value, 'lte')) {
                 $query = new RangeQuery($field, $value);
@@ -1202,7 +1202,7 @@ class SearchBuilder extends BaseBuilder
      */
     private function getModelMap(string $type) : string
     {
-        $map = config('mysticquent.morph_map', []);
+        $map = config('mysticquent.mappings', []);
         $model = Arr::get($map, $type, $type);
         return $model;
     }

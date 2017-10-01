@@ -80,7 +80,8 @@ trait Searchable
         if (isset($this->documentIndex) and !empty($this->documentIndex)) {
             return $this->documentIndex;
         }
-        return $this->getTable().'_'.env('APP_ENV');
+        $index = $this->getTable().'_'.env('APP_ENV');
+        return preg_replace('/\_$/', '', $index);
     }
 
     /**
@@ -118,8 +119,15 @@ trait Searchable
         $input = [];
         foreach ($this->getSuggesterAttributes() as $attribute) {
             $value = $this->$attribute ?? array_get($dataRaw, $attribute);
+            if ($value instanceof Collection) {
+                $value = $value->toArray();
+            }
             if (is_string($value) && preg_match('/[A-z]+/', $value)) {
                 $input[] = $value;
+            } elseif (is_array($value) && !is_associative_array($value)) {
+                foreach ($value as $val) {
+                    $input[] = $val;
+                }
             }
         }
         $document['_suggest'] = $input;

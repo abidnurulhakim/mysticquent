@@ -67,8 +67,6 @@ return [
     | The sql table to store the mappings logs
     |
     */
-    'mappings'   => env('MYSTICQUENT_MAPPINGS', 'mappings'),
-
-    'morph_map'  => [],
+    'mappings'   => [],
 
 ];
