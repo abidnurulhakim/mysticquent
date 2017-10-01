@@ -77,7 +77,7 @@ class SearchBuilder extends BaseBuilder
     public function __construct(string $keyword = '*', array $attributes = [])
     {
         parent::__construct();
-        $this->keyword = $keyword;
+        $this->keyword = $keyword ?? '*';
         $this->setPagination($attributes);
         $filters = Arr::get($attributes, 'where', []);
         $this->addFilters($filters);
