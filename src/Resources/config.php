@@ -61,10 +61,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Mapping repository table
+    | Mapping type document
     |--------------------------------------------------------------------------
     |
-    | The sql table to store the mappings logs
+    | Polymorphic attribute _type in document elastic use for load model from result search
     |
     */
     'mappings'   => [],

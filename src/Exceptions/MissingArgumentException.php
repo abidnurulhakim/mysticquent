@@ -1,6 +1,6 @@
 <?php
 
-namespace Bidzm\Mysticquent\Exception;
+namespace Mysticquent\Exception;
 
 class MissingArgumentException extends \InvalidArgumentException
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace Bidzm\Mysticquent\Builders;
+namespace Mysticquent\Builders;
 
-use Bidzm\Mysticquent\Builders\BaseBuilder;
-use Bidzm\Mysticquent\Map\Blueprint;
-use Bidzm\Mysticquent\Map\Grammar;
 use Closure;
+use Mysticquent\Builders\BaseBuilder;
+use Mysticquent\Map\Blueprint;
+use Mysticquent\Map\Grammar;
 
 class MapBuilder extends BaseBuilder
 {

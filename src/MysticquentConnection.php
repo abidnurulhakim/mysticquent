@@ -1,12 +1,12 @@
 <?php
 
-namespace Bidzm\Mysticquent;
+namespace Mysticquent;
 
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
-use Bidzm\Mysticquent\Builders\MapBuilder;
-use Bidzm\Mysticquent\Builders\SearchBuilder;
-use Bidzm\Mysticquent\Builders\SuggestionBuilder;
+use Mysticquent\Builders\MapBuilder;
+use Mysticquent\Builders\SearchBuilder;
+use Mysticquent\Builders\SuggestionBuilder;
 
 class MysticquentConnection
 {

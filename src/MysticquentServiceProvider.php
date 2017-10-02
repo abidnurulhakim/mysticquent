@@ -1,10 +1,10 @@
 <?php
 
-namespace Bidzm\Mysticquent;
+namespace Mysticquent;
 
-use Bidzm\Mysticquent\Facades\Mysticquent;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
+use Mysticquent\Facades\Mysticquent;
 
 /**
  * @codeCoverageIgnore

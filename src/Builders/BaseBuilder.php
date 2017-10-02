@@ -1,13 +1,13 @@
 <?php
 
-namespace Bidzm\Mysticquent\Builders;
+namespace Mysticquent\Builders;
 
-use Bidzm\Mysticquent\Exceptions\InvalidArgumentException;
-use Bidzm\Mysticquent\Searchable;
 use Elasticsearch\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use Mysticquent\Exceptions\InvalidArgumentException;
+use Mysticquent\Searchable;
 use ONGR\ElasticsearchDSL\Search as Query;
 
 class BaseBuilder

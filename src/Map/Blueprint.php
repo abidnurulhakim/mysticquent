@@ -1,6 +1,6 @@
 <?php
 
-namespace Bidzm\Mysticquent\Map;
+namespace Mysticquent\Map;
 
 use Closure;
 use Illuminate\Support\Fluent;

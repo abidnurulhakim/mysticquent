@@ -1,13 +1,13 @@
 <?php
 
-namespace Bidzm\Mysticquent;
+namespace Mysticquent;
 
-use Bidzm\Mysticquent\Exceptions\InvalidArgumentException;
-use Bidzm\Mysticquent\Exceptions\MissingArgumentException;
-use Bidzm\Mysticquent\Searchable;
-use Bidzm\Mysticquent\Facades\Mysticquent;
 use Elasticsearch\Client;
 use Illuminate\Support\Collection;
+use Mysticquent\Exceptions\InvalidArgumentException;
+use Mysticquent\Exceptions\MissingArgumentException;
+use Mysticquent\Searchable;
+use Mysticquent\Facades\Mysticquent;
 
 class Document
 {

@@ -1,7 +1,12 @@
 <?php
 
-namespace Bidzm\Mysticquent\Builders;
+namespace Mysticquent\Builders;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Mysticquent\Builders\BaseBuilder;
+use Mysticquent\Collection\MysticquentPaginator;
+use Mysticquent\Exceptions\InvalidArgumentException;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\CommonTermsQuery;
 use ONGR\ElasticsearchDSL\Query\FullText\MatchQuery;
@@ -26,11 +31,6 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use ONGR\ElasticsearchDSL\Search as Query;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
-use Bidzm\Mysticquent\Builders\BaseBuilder;
-use Bidzm\Mysticquent\Collection\MysticquentPaginator;
-use Bidzm\Mysticquent\Exceptions\InvalidArgumentException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 
 class SearchBuilder extends BaseBuilder
 {

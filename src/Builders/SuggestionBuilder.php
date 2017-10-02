@@ -1,8 +1,8 @@
 <?php
 
-namespace Bidzm\Mysticquent\Builders;
+namespace Mysticquent\Builders;
 
-use Bidzm\Mysticquent\Builders\BaseBuilder;
+use Mysticquent\Builders\BaseBuilder;
 use ONGR\ElasticsearchDSL\Search as Query;
 use ONGR\ElasticsearchDSL\Suggest\Suggest;
 

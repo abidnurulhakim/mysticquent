@@ -1,12 +1,12 @@
 <?php
 
-namespace Bidzm\Mysticquent;
+namespace Mysticquent;
 
-use Bidzm\Mysticquent\Document;
-use Bidzm\Mysticquent\Facades\Mysticquent;
-use Bidzm\Mysticquent\Map\Blueprint;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Mysticquent\Document;
+use Mysticquent\Facades\Mysticquent;
+use Mysticquent\Map\Blueprint;
 
 trait Searchable
 {
@@ -38,7 +38,7 @@ trait Searchable
     /**
      * Start an elastic persistence query builder.
      *
-     * @return \Bidzm\Mysticquet\Document
+     * @return \Mysticquet\Document
      */
     private function document()
     {
@@ -220,7 +220,7 @@ trait Searchable
     /**
      * Start an elastic search query builder.
      *
-     * @return \Bidzm\Mysticquet\Builder\SearchBuilder
+     * @return \Mysticquet\Builder\SearchBuilder
      */
     public static function search($keyword = '*', array $attributes = [])
     {
@@ -231,7 +231,7 @@ trait Searchable
     /**
      * Start an elastic suggestion query builder.
      *
-     * @return \Bidzm\Mysticquet\Builder\SuggestionBuilder
+     * @return \Mysticquet\Builder\SuggestionBuilder
      */
     public static function suggest()
     {

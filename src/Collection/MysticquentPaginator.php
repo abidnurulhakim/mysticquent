@@ -1,6 +1,6 @@
 <?php
 
-namespace Bidzm\Mysticquent\Collection;
+namespace Mysticquent\Collection;
 
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
