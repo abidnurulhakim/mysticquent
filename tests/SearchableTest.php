@@ -84,12 +84,12 @@ class SearchableTest extends \PHPUnit_Framework_TestCase
 
 class SearchableModelTest extends \Illuminate\Database\Eloquent\Model
 {
-    use \Bidzm\Mysticquent\Searchable;
+    use \Mysticquent\Searchable;
 }
 
 class BuildDocumentSearchableModelTest extends \Illuminate\Database\Eloquent\Model
 {
-    use \Bidzm\Mysticquent\Searchable;
+    use \Mysticquent\Searchable;
 
     public function buildDocument()
     {
