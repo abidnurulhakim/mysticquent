@@ -37,9 +37,6 @@ class MysticquentServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerManager();
-
-        // $this->registerMappings();
-
         $this->registerAlias();
     }
 
@@ -49,16 +46,8 @@ class MysticquentServiceProvider extends ServiceProvider
     protected function registerManager()
     {
         $this->app->singleton('mysticquent', function ($app) {
-            return new MysticquentConnection($app['config']['plastic']);
+            return new MysticquentConnection($app['config']['mysticquent']);
         });
-    }
-
-    /**
-     * Register the mappings service provider.
-     */
-    protected function registerMappings()
-    {
-        $this->app->register(MappingServiceProvider::class);
     }
 
     /**
