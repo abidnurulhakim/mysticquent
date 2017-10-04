@@ -54,7 +54,7 @@ return [
         */
         'logging' => [
             'enabled' => env('MYSTICQUENT_LOG', false),
-            'path'    => storage_path(env('MYSTICQUENT_LOG_PATH', 'logs/elostic.log')),
+            'path'    => storage_path(env('MYSTICQUENT_LOG_PATH', 'logs/mysticquent.log')),
             'level'   => env('MYSTICQUENT_LOG_LEVEL', 200),
         ],
     ],
