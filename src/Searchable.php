@@ -188,6 +188,7 @@ trait Searchable
      */
     public static function createIndex()
     {
+        $model = new static;
         self::deleteIndex();
         Mysticquent::client()->indices()
             ->create($model->defaultMapping());
@@ -217,9 +218,7 @@ trait Searchable
      */
     public static function resetIndex(bool $reindex = true)
     {
-        $model = new static;
         self::createIndex();
-
         if ($reindex) {
             self::reindexAll();
         }
