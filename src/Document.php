@@ -150,7 +150,7 @@ class Document
         ];
 
         // check if the document exists before deleting
-        if ($this->elastic->exists($params)) {
+        if ($this->client->exists($params)) {
             return $this->client->delete($params);
         }
 

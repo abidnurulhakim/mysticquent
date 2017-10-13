@@ -183,10 +183,23 @@ trait Searchable
     }
 
     /**
-     * Reset index of Models.
+     * Create index of Models.
      *
      */
-    public static function resetIndex(bool $reindex = true)
+    public static function createIndex()
+    {
+        $this->deleteIndex();
+        Mysticquent::client()->indices()
+            ->create($model->defaultMapping());
+
+        self::runMapping();
+    }
+
+    /**
+     * Delete index of Models.
+     *
+     */
+    public static function deleteIndex()
     {
         $model = new static;
         $indexParams = [
@@ -196,15 +209,20 @@ trait Searchable
         if ($exists) {
             Mysticquent::client()->indices()->delete($indexParams);
         }
-        Mysticquent::client()->indices()
-            ->create($model->defaultMapping());
+    }
 
-        self::runMapping();
+    /**
+     * Reset index of Models.
+     *
+     */
+    public static function resetIndex(bool $reindex = true)
+    {
+        $model = new static;
+        $this->createIndex();
 
         if ($reindex) {
             self::reindexAll();
         }
-
     }
 
     /**

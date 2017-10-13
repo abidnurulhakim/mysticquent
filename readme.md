@@ -1,21 +1,17 @@
-![Plastic Logo](http://i.imgur.com/PyolY7g.png)
-
-> Plastic is an Elasticsearch ODM and mapper for Laravel. It renders the developer experience more enjoyable while using Elasticsearch, by providing a fluent syntax for mapping, querying, and storing eloquent models.
-
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/sleimanx2/plastic) [![Build Status](https://travis-ci.org/sleimanx2/plastic.svg?branch=master&&refresh=2)](https://travis-ci.org/sleimanx2/plastic) [![StyleCI](https://styleci.io/repos/58264395/shield)](https://styleci.io/repos/58264395)
+> Mysticquent is an Elasticsearch ODM and mapper for Laravel. It renders the developer experience more enjoyable while using Elasticsearch, by providing a fluent syntax for mapping, querying, and storing eloquent models. This package inspired from sleimanx2/plastic and searchkick
 
 > This package is still under active development and may change.
 
-# Installing Plastic
+# Installing Mysticquent
 
 ```bash
-composer require sleimanx2/plastic
+composer require bidzm/mysticquent
 ```
 
 Then we need to add the plastic service provider to `config/app.php` under the providers key:
 
 ```php
-Sleimanx2\Plastic\PlasticServiceProvider::class
+Mysticquent\MysticquentServiceProvider::class
 ```
 
 Finally we need to run:
@@ -24,7 +20,7 @@ Finally we need to run:
 php artisan vendor:publish
 ```
 
-This will create a config file at `config/plastic.php` and a mapping directory at `database/mappings`.
+This will create a config file at `config/mysticquent.php`.
 
 # Usage
 
@@ -38,12 +34,12 @@ This will create a config file at `config/plastic.php` and a mapping directory a
 
 ## [Defining Searchable Models]()
 
-To get started, enable searching capabilities in your model by adding the `Sleimanx2\Plastic\Searchable` trait:
+To get started, enable searching capabilities in your model by adding the `Mysticquent\Searchable` trait:
 
 ```php
-use Sleimanx2\Plastic\Searchable;
+use Mysticquent\Searchable;
 
-class Book extends Model
+class User extends Model
 {
     use Searchable;
 }
@@ -51,31 +47,25 @@ class Book extends Model
 
 ### Defining what data to store.
 
-By default, Plastic will store all visible properties of your model, using `$model->toArray()`.
+By default, Mysticquent will store all visible properties of your model.
 
-In addition, Plastic provides you with two ways to manually specify which attributes/relations should be stored in Elasticsearch.
+In addition, Mysticquent provides you to manually specify which data should be stored in Elasticsearch.
 
-#### 1 - Providing a searchable property to our model
-
-```php
-public $searchable = ['id', 'name', 'body', 'tags', 'images'];
-```
-
-#### 2 - Providing a buildDocument method
+#### Providing a buildDocument method
 
 ```php
 public function buildDocument()
 {
     return [
         'id' => $this->id,
-        'tags' => $this->tags
+        'email' => $this->email
     ];
 }
 ```
 
 ### Custom elastic type name
 
-By the default Plastic will use the model table name as the model type. You can customize it by adding a `$documentType` property to your model:
+By the default Mysticquent will use class name of model as document type. You can customize it by adding a `$documentType` property to your model:
 
 ```php
 public $documentType = 'custom_type';
@@ -83,7 +73,7 @@ public $documentType = 'custom_type';
 
 ### Custom elastic index name
 
-By the default Plastic will use the index defined in the configuration file. You can customize in which index your model data will be stored by setting the `$documentIndex` property to your model:
+By the default Mysticquent will use the model table name as index. You can customize in which index your model data will be stored by setting the `$documentIndex` property to your model:
 
 ```php
 public $documentIndex = 'custom_index';
@@ -91,44 +81,44 @@ public $documentIndex = 'custom_index';
 
 ## [Storing Model Content]()
 
-Plastic automatically syncs model data with elastic when you save or delete your model from our SQL DB, however this feature can be disabled by adding `public $syncDocument = false` to your model.
+Mysticquent automatically syncs model data with elastic when you save or delete your model from our SQL DB, however this feature can be disabled by adding `public $syncDocument = false` to your model.
 
 > Its important to note that manual document update should be performed in multiple scenarios:
 
 > 1 - When you perform a bulk update or delete, no Eloquent event is triggered, therefore the document data won't be synced.
 
-> 2 - Plastic doesn't listen to related models events (yet), so when you update a related model's content you should consider updating the parent document.
+> 2 - Mysticquent doesn't listen to related models events (yet), so when you update a related model's content you should consider updating the parent document.
 
 ### Saving a document
 
 ```php
-$book = Book::first()->document()->save();
+$book = User::first()->document()->save();
 ```
 
 ### Partial updating a document
 
 ```php
-$book = Book::first()->document()->update();
+$book = User::first()->document()->update();
 ```
 
 ### Deleting a document
 
 ```php
-$book = Book::first()->document()->delete();
+$book = User::first()->document()->delete();
 ```
 
 ### Saving documents in bulk
 
 ```php
-Plastic::persist()->bulkSave(Tag::find(1)->books);
+Mysticquent::document()->bulkSave(User::find(1)->books);
 ```
 
 ### Deleting documents in bulk
 
 ```php
-$authors = Author::where('age','>',25)->get();
+$users = User::where('age','>',25)->get();
 
-Plastic::persist()->bulkDelete($authors);
+Mysticquent::document()->bulkDelete($users);
 ```
 
 ## [Searching Model Content]()
