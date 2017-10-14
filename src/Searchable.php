@@ -263,6 +263,61 @@ trait Searchable
      */
     private function defaultMapping()
     {
+        $version = config('mysticquent.elasticsearch_version', '5.3.5');
+        if (preg_match('/^5.*/', $version)) {
+            return self::defaultMappingV5();
+        } else {
+            return self::defaultMappingV2();
+        }
+    }
+
+    /**
+     * Get default mapping
+     *
+     * @return array
+     */
+    private function defaultMappingV2()
+    {
+        return [
+                'index' => $this->getDocumentIndex(),
+                'body' => [
+                    'mappings' => [
+                        '_default_' => [
+                             'dynamic_templates' => [
+                                 [
+                                     'strings' => [
+                                         'match' => '*',
+                                         'match_mapping_type' => 'string',
+                                         'mapping' => [
+                                             'type' => 'string',
+                                             'fields' => [
+                                                 '{name}' => [
+                                                     'include_in_all' => true,
+                                                     'index' => 'not_analyzed',
+                                                     'type' => 'string'
+                                                 ],
+                                                 'analyzed' => [
+                                                     'index' => 'analyzed',
+                                                     'type' => 'string'
+                                                 ]
+                                             ]
+                                         ],
+                                     ]
+                                 ]
+                             ]
+                        ]
+                    ]
+                ]
+            ];
+    }
+
+    /**
+     * Get default mapping
+     *
+     * @return array
+     */
+    private function defaultMappingV5()
+    {
         return [
                 'index' => $this->getDocumentIndex(),
                 'body' => [

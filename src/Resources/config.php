@@ -1,6 +1,17 @@
 <?php
+use Elasticsearch\Client;
 
 return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Elasticsearch version
+    |--------------------------------------------------------------------------
+    |
+    | The version of your elasicsearch
+    |
+    */
+    'elasticsearch_version' => env('MYSTICQUENT_ELASTICSEARCH_VERSION', '5.3.5'),
 
     /*
     |--------------------------------------------------------------------------
