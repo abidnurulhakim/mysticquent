@@ -791,8 +791,8 @@ class SearchBuilder extends BaseBuilder
         if (is_null($page)) {
             $page = $this->getPage();
         }
-        $this->setPage($page);
         $this->setLimit($limit);
+        $this->setPage($page);
 
         return $this->get();
     }
