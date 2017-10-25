@@ -5,6 +5,7 @@ namespace Mysticquent\Builders;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Mysticquent\Builders\BaseBuilder;
+use Mysticquent\Builders\Utilities\FilterEndpoint;
 use Mysticquent\Collection\MysticquentPaginator;
 use Mysticquent\Exceptions\InvalidArgumentException;
 use ONGR\ElasticsearchDSL\Query\Compound\BoolQuery;
@@ -30,6 +31,7 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use ONGR\ElasticsearchDSL\Search as Query;
+use ONGR\ElasticsearchDSL\SearchEndpoint\QueryEndpoint;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
 
 class SearchBuilder extends BaseBuilder
@@ -1010,7 +1012,7 @@ class SearchBuilder extends BaseBuilder
      * @param array $attributes
      *
      */
-    private static function addCondition(bool $filter, string $field, $value, $attributes = []) : void
+    private function addCondition(bool $filter, string $field, $value, $attributes = []) : void
     {
         if (is_null($value)) {
             if ($this->getBoolState() == BoolQuery::MUST_NOT) {
@@ -1032,7 +1034,9 @@ class SearchBuilder extends BaseBuilder
             $query = new TermQuery($field, $value, $attributes);
         }
         if ($filter) {
-            $this->query->addFilter($query, $this->getBoolState());
+            $this->query->getEndpoint(QueryEndpoint::NAME);
+            $endpoint = $this->query->getEndpoint(FilterEndpoint::NAME);
+            $endpoint->addToBool($query, $this->getBoolState(), null);
         } else {
             $this->append($query);
         }
@@ -1049,20 +1053,20 @@ class SearchBuilder extends BaseBuilder
         if (is_array($filters) && array() === $filters && !empty($filters)) {
             throw new InvalidArgumentException('attribute where must be associative array');
         }
-        foreach ($filters as $clauses) {
+        foreach ($filters as $clauses => $value) {
             switch ($clauses) {
                 case 'or':
-                    foreach ($clauses as $key => $value) {
-                        $this->whereOr($key, $value);
+                    foreach ($value as $key => $val) {
+                        $this->queryOr($key, $val);
                     }
                     break;
                 case 'not':
-                    foreach ($clauses as $key => $value) {
-                        $this->whereNot($key, $value);
+                    foreach ($value as $key => $val) {
+                        $this->queryNot($key, $val);
                     }
                     break;
                 default:
-                    $this->where($clauses, $value);
+                    $this->query($clauses, $value);
                     break;
             }
         }
@@ -1079,16 +1083,16 @@ class SearchBuilder extends BaseBuilder
         if (is_array($queries) && array() === $queries && !empty($queries)) {
             throw new InvalidArgumentException('attribute query must be associative array');
         }
-        foreach ($queries as $clauses) {
+        foreach ($queries as $clauses => $value) {
             switch ($clauses) {
                 case 'or':
-                    foreach ($clauses as $key => $value) {
-                        $this->queryOr($key, $value);
+                    foreach ($value as $key => $val) {
+                        $this->queryOr($key, $val);
                     }
                     break;
                 case 'not':
-                    foreach ($clauses as $key => $value) {
-                        $this->queryNot($key, $value);
+                    foreach ($value as $key => $val) {
+                        $this->queryNot($key, $val);
                     }
                     break;
                 default:
