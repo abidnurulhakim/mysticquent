@@ -798,6 +798,17 @@ class SearchBuilder extends BaseBuilder
     }
 
     /**
+     * Execute the search query against elastic and return total.
+     *
+     * @return int
+     */
+    public function total()
+    {
+        $result = $this->from($this->getOffset())->size($this->getLimit())->getRaw();
+        return Arr::get($result, 'hits.total', 0);
+    }
+
+    /**
      * Return the boolean query state.
      *
      * @return string
