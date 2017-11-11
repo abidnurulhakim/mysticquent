@@ -9,7 +9,7 @@ class MysticquentPaginator extends LengthAwarePaginator
 {
     protected $result;
 
-    protected $aggregation;
+    protected $aggregations;
 
     /**
      * PlasticPaginator constructor.
@@ -19,7 +19,7 @@ class MysticquentPaginator extends LengthAwarePaginator
      * @param int           $limit
      * @param int           $page
      */
-    public function __construct(Collection $result, $total, $limit, $page, $aggregation = [])
+    public function __construct(Collection $result, $total, $limit, $page, $aggregations = [])
     {
 
         parent::__construct($result, $total, $limit, $page,
@@ -27,14 +27,14 @@ class MysticquentPaginator extends LengthAwarePaginator
         $this->setAggregation($aggregation);
     }
 
-    public function getAggregation()
+    public function getAggregations()
     {
-        return $this->aggregation;
+        return $this->aggregations;
     }
 
-    public function setAggregation($aggregation)
+    public function setAggregations($aggregations)
     {
-        $this->aggregation = $aggregation;
+        $this->aggregations = $aggregations;
         return $this;
     }
 }

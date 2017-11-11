@@ -776,7 +776,7 @@ class SearchBuilder extends BaseBuilder
             $key = get_class($element).':'.$element->getKey();
             return Arr::get($sortId, $key, 10001);
         })->values();
-        return new MysticquentPaginator($collection, Arr::get($result, 'hits.total', 0), $this->getLimit(), $this->getPage(), Arr::get($result, 'aggregation', []));
+        return new MysticquentPaginator($collection, Arr::get($result, 'hits.total', 0), $this->getLimit(), $this->getPage(), Arr::get($result, 'aggregations', []));
     }
 
     /**
@@ -784,10 +784,10 @@ class SearchBuilder extends BaseBuilder
      *
      * @return array
      */
-    public function getAggregation()
+    public function getAggregations()
     {
         $result = $this->getRaw();
-        return Arr::get($result, 'aggregation', []);
+        return Arr::get($result, 'aggregations', []);
     }
 
     /**
