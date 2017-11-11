@@ -751,9 +751,9 @@ class SearchBuilder extends BaseBuilder
     }
 
     /**
-     * Execute the search query against elastic and return the raw result if the model is not set.
+     * Execute the search query against elastic and return the result query.
      *
-     * @return PlasticResult
+     * @return MysticquentPaginator
      */
     public function get()
     {
@@ -776,7 +776,18 @@ class SearchBuilder extends BaseBuilder
             $key = get_class($element).':'.$element->getKey();
             return Arr::get($sortId, $key, 10001);
         })->values();
-        return new MysticquentPaginator($collection, Arr::get($result, 'hits.total', 0), $this->getLimit(), $this->getPage());
+        return new MysticquentPaginator($collection, Arr::get($result, 'hits.total', 0), $this->getLimit(), $this->getPage(), Arr::get($result, 'aggregation', []));
+    }
+
+    /**
+     * Execute the search query against elastic and return the result of aggregation.
+     *
+     * @return array
+     */
+    public function getAggregation()
+    {
+        $result = $this->getRaw();
+        return Arr::get($result, 'aggregation', []);
     }
 
     /**
@@ -784,7 +795,7 @@ class SearchBuilder extends BaseBuilder
      *
      * @param int $limit
      *
-     * @return PlasticPaginator
+     * @return MysticquentPaginator
      */
     public function paginate($limit = 30, $page = null)
     {

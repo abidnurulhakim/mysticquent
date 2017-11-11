@@ -7,10 +7,9 @@ use Illuminate\Support\Collection;
 
 class MysticquentPaginator extends LengthAwarePaginator
 {
-    /**
-     * @var PlasticResult
-     */
     protected $result;
+
+    protected $aggregation;
 
     /**
      * PlasticPaginator constructor.
@@ -20,10 +19,22 @@ class MysticquentPaginator extends LengthAwarePaginator
      * @param int           $limit
      * @param int           $page
      */
-    public function __construct(Collection $result, $total, $limit, $page)
+    public function __construct(Collection $result, $total, $limit, $page, $aggregation = [])
     {
 
         parent::__construct($result, $total, $limit, $page,
             ['path' => LengthAwarePaginator::resolveCurrentPath()]);
+        $this->setAggregation($aggregation);
+    }
+
+    public function getAggregation()
+    {
+        return $this->aggregation;
+    }
+
+    public function setAggregation($aggregation)
+    {
+        $this->aggregation = $aggregation;
+        return $this;
     }
 }

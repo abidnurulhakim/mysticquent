@@ -26,9 +26,10 @@ use ONGR\ElasticsearchDSL\Search as Query;
 
 class AggregationBuilder extends BaseBuilder
 {
-    public function __construct()
+    public function __construct($query)
     {
         parent::__construct();
+        $this->setQuery($query);
     }
 
     /**
