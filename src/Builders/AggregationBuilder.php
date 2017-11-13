@@ -3,6 +3,7 @@
 namespace Mysticquent\Builders;
 
 use Mysticquent\Builders\BaseBuilder;
+use Mysticquent\Builders\Utilities\Aggregations\TermsAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\AbstractAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\DateRangeAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\GeoDistanceAggregation;
@@ -11,7 +12,6 @@ use ONGR\ElasticsearchDSL\Aggregation\Bucketing\HistogramAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\Ipv4RangeAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\MissingAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Bucketing\RangeAggregation;
-use ONGR\ElasticsearchDSL\Aggregation\Bucketing\TermsAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\AvgAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\CardinalityAggregation;
 use ONGR\ElasticsearchDSL\Aggregation\Metric\GeoBoundsAggregation;
