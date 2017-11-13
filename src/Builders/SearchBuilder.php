@@ -1053,7 +1053,12 @@ class SearchBuilder extends BaseBuilder
                 $query = new TermsQuery($field, $value, $attributes);
             }
         } else {
-            $query = new TermQuery($field, $value, $attributes);
+            $version = config('mysticquent.elasticsearch_version', '5.3.5');
+            if (preg_match('/^5.*/', $version)) {
+                $query = new TermQuery($field, $value, $attributes);
+            } else {
+                $query = new MatchQuery($field, $value, $attributes);
+            }
         }
         if ($filter) {
             $this->query->getEndpoint(QueryEndpoint::NAME);
