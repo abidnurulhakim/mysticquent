@@ -24,7 +24,7 @@ class MysticquentPaginator extends LengthAwarePaginator
 
         parent::__construct($result, $total, $limit, $page,
             ['path' => LengthAwarePaginator::resolveCurrentPath()]);
-        $this->setAggregation($aggregation);
+        $this->setAggregations($aggregations);
     }
 
     public function getAggregations()
