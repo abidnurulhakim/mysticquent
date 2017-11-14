@@ -1056,12 +1056,9 @@ class SearchBuilder extends BaseBuilder
             $query = new TermQuery($field, $value, $attributes);
         }
         if ($filter) {
-            $this->query->getEndpoint(QueryEndpoint::NAME);
-            $endpoint = $this->query->getEndpoint(FilterEndpoint::NAME);
-            $endpoint->addToBool($query, $this->getBoolState(), null);
-        } else {
-            $this->append($query);
+            $this->filter();
         }
+        $this->append($query);
     }
 
     /**
@@ -1079,16 +1076,16 @@ class SearchBuilder extends BaseBuilder
             switch ($clauses) {
                 case 'or':
                     foreach ($value as $key => $val) {
-                        $this->queryOr($key, $val);
+                        $this->whereOr($key, $val);
                     }
                     break;
                 case 'not':
                     foreach ($value as $key => $val) {
-                        $this->queryNot($key, $val);
+                        $this->whereNot($key, $val);
                     }
                     break;
                 default:
-                    $this->query($clauses, $value);
+                    $this->where($clauses, $value);
                     break;
             }
         }
