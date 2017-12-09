@@ -1036,11 +1036,10 @@ class SearchBuilder extends BaseBuilder
      */
     private function addCondition(bool $filter, string $field, $value, $attributes = []) : void
     {
+        $query = null;
         if (is_null($value)) {
             if ($this->getBoolState() == BoolQuery::MUST_NOT) {
                 $this->must();
-            } else {
-                $this->mustNot();
             }
             $this->exists($field);
         } elseif (is_array($value) && !is_associative_array($value)) {
@@ -1049,6 +1048,12 @@ class SearchBuilder extends BaseBuilder
             if (Arr::has($value, 'gt') || Arr::has($value, 'gte') ||
                 Arr::has($value, 'lt') || Arr::has($value, 'lte')) {
                 $query = new RangeQuery($field, $value);
+            } elseif (Arr::has($value, 'not')) {
+                if ($filter) {
+                    $this->whereNot($field, $value['not'], $attributes);
+                } else {
+                    $this->queryNot($field, $value['not'], $attributes);
+                }
             } else {
                 $query = new TermsQuery($field, $value, $attributes);
             }
@@ -1058,7 +1063,9 @@ class SearchBuilder extends BaseBuilder
         if ($filter) {
             $this->filter();
         }
-        $this->append($query);
+        if ($query) {
+            $this->append($query);
+        }
     }
 
     /**
