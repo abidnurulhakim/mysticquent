@@ -267,7 +267,7 @@ class SearchBuilder extends BaseBuilder
         $fields = is_array($fields) ? $fields : [$fields];
 
         foreach ($fields as $field) {
-            $sort = new FieldSort($field, $order, $parameters);
+            $sort = new FieldSort($field, $order, array_merge(['ignore_unmapped' => true], $parameters));
 
             $this->query->addSort($sort);
         }
