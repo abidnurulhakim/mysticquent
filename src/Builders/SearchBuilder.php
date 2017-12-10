@@ -1199,7 +1199,7 @@ class SearchBuilder extends BaseBuilder
              $exists = $models->search(function ($model) use ($item, $type) {
                  return $model->getKey() == $item['_id'];
              });
-             return $exists ? $models->get($exists, $this->fillModel($type, $item)) : null;
+             return $exists === false ? null : $models->get($exists, $this->fillModel($type, $item));
          });
          return $results->reject(function($item){
              return is_null($item);
