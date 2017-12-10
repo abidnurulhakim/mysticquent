@@ -1187,21 +1187,24 @@ class SearchBuilder extends BaseBuilder
      *
      * @return Collection
      */
-    private function load(string $type, Collection $hits, array $with = []) : Collection
-    {
-        $model = $this->getModelMap($type);
-        $primaryKeys = $hits->map(function ($item){
-            return $item['_id'];
-        })->unique()->values()->all();
+     private function load(string $type, Collection $hits, array $with = []) : Collection
+     {
+         $model = $this->getModelMap($type);
+         $primaryKeys = $hits->map(function ($item){
+             return $item['_id'];
+         })->unique()->values()->all();
 
-        $models = $model::with($with)->find($primaryKeys);
-        return $hits->map(function ($item) use ($models, $type) {
-            $exists = $models->search(function ($model) use ($item, $type) {
-                return $model->getKey() == $item['_id'];
-            });
-            return $models->get($exists) ?? $this->fillModel($type, $item);
-        });
-    }
+         $models = $model::with($with)->find($primaryKeys);
+         $results = $hits->map(function ($item) use ($models, $type) {
+             $exists = $models->search(function ($model) use ($item, $type) {
+                 return $model->getKey() == $item['_id'];
+             });
+             return $exists ? $models->get($exists, $this->fillModel($type, $item)) : null;
+         });
+         return $results->reject(function($item){
+             return is_null($item);
+         });
+     }
 
     /**
      * Fill model for Dummy Model.
